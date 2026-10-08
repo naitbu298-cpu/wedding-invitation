@@ -1,0 +1,1295 @@
+<!DOCTYPE html>
+<html lang="ky">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Айтбек & Айтбу — Той</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --burgundy-dark: #4B1516;
+            --burgundy: #7B2D2E;
+            --cream: #F5F0E6;
+            --ivory: #FDF8F0;
+            --gold: #B89B6A;
+            --gold-light: #D4B98C;
+            --text-dark: #2C2C2C;
+            --text-muted: #6B6560;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        html, body {
+            width: 100%; height: 100%;
+            font-family: "Montserrat", sans-serif;
+            background: linear-gradient(180deg, #1A0F0F 0%, #2E1414 50%, #1A0F0F 100%);
+            color: var(--ivory);
+            overflow: hidden;
+        }
+
+        /* === ФОН: ДВЕ ГОЛУБКИ === */
+        .bg-doves-pair {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: url('images/doves-pair.png') center/cover no-repeat;
+            opacity: 0.12; z-index: 0; pointer-events: none;
+        }
+
+        /* ЦВЕТОЧНЫЕ УЗОРЫ ПО БОКАМ */
+        .decor-floral-side {
+            position: absolute; top: 50%; transform: translateY(-50%);
+            width: 240px; height: auto; opacity: 0.7; z-index: 1;
+            pointer-events: none;
+        }
+        .decor-floral-left { left: 5px; }
+        .decor-floral-right { right: 5px; transform: translateY(-50%) scaleX(-1); }
+        
+        /* ИЗОБРАЖЕНИЯ */
+        .img-rings { width: 75px; height: auto; margin: 12px 0; }
+        .img-doves-top { width: 180px; height: auto; margin-bottom: 8px; }
+        .img-seal { width: 110px; height: auto; }
+        .img-floral-ornament { width: 140px; height: auto; opacity: 0.85; }
+
+        .divider {
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            margin: 16px 0;
+        }
+        .divider-line {
+            width: 60px; height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+        }
+        .divider-dot {
+            width: 8px; height: 8px; border-radius: 50%; background: var(--gold);
+            box-shadow: 0 0 6px rgba(184,155,106,.4);
+        }
+
+        /* === ЗАГРУЗКА === */
+        .loader {
+            position: fixed; inset: 0; z-index: 9999;
+            display: flex; align-items: center; justify-content: center; flex-direction: column;
+            background: linear-gradient(180deg, #1A0F0F 0%, #2E1414 100%);
+            transition: opacity 1s ease;
+        }
+        .loader.hidden { opacity: 0; visibility: hidden; }
+        .loader-dove { width: 80px; height: auto; animation: float 2s infinite ease-in-out; }
+
+        @keyframes float {
+            0%,100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* === ЭКРАН С КОНВЕРТОМ — ЗАКРЫТО === */
+        .envelope-screen {
+            position: fixed; inset: 0; z-index: 100;
+            display: flex; align-items: center; justify-content: center; flex-direction: column;
+            background: radial-gradient(ellipse at center, rgba(46,20,20,.95) 0%, rgba(26,15,15,1) 100%);
+            transition: opacity 1.2s ease, visibility 1.2s ease;
+        }
+
+        .envelope-screen.hide {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+        
+        .dove-flying {
+            width: 180px;
+            height: auto;
+            margin-bottom: 20px;
+            animation: flyDown 2.5s infinite ease-in-out;
+        }
+
+        @keyframes flyDown {
+            0%,100% { transform: translateY(0); }
+            50% { transform: translateY(8px); }
+        }
+        
+        .envelope-wrapper {
+            width: min(360px, 88vw);
+            height: min(500px, 65vh);
+            perspective: 1600px;
+            cursor: pointer;
+            position: relative;
+            overflow: visible;
+        }
+        
+        /* КОНВЕРТ */
+        .envelope-outer {
+            position: absolute;
+            inset: 0;
+            background: url('images/envelope-bg.jpg') center/cover no-repeat;
+            border-radius: 6px;
+            box-shadow: 0 25px 50px rgba(0,0,0,.5);
+            overflow: hidden;
+            border: 1px solid rgba(184,155,106,.3);
+            z-index: 1;
+        }
+
+        /* КЛАПАН КОНВЕРТА */
+        .envelope-flap-design {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 45%;
+            background: url('images/envelope-bg.jpg') center/cover no-repeat;
+            clip-path: polygon(0 0, 50% 100%, 100% 0);
+            opacity: 0.9;
+            z-index: 3;
+            transform-origin: top center;
+            transform: rotateX(0deg);
+            transition: transform 1.2s cubic-bezier(.4,.1,.2,1);
+            backface-visibility: hidden;
+        }
+
+        /* ПЕЧАТЬ */
+        .envelope-seal {
+            position: absolute;
+            top: 45%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 4;
+            transition: opacity .5s ease, transform .5s ease;
+        }
+
+        /* ВНУТРЕННЯЯ ОТКРЫТКА */
+        .invitation-card {
+            position: absolute;
+            width: 86%;
+            height: 84%;
+            left: 7%;
+            top: 8%;
+            background: linear-gradient(180deg, var(--ivory) 0%, #F0E8D8 100%);
+            z-index: 2;
+            padding: 24px;
+            transform: translateY(0) scale(0.96);
+            transition: transform 1.5s cubic-bezier(.2,.8,.2,1), opacity 1.2s ease;
+            opacity: 0;
+            border-radius: 4px;
+            box-shadow: inset 0 0 0 1px rgba(184,155,106,.3), 0 10px 30px rgba(0,0,0,.2);
+        }
+
+        .card-border {
+            width: 100%;
+            height: 100%;
+            border: 1px solid rgba(184,155,106,.4);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 15px;
+        }
+
+        .card-floral-top {
+            position: absolute;
+            top: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .card-floral-bottom {
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%) rotate(180deg);
+        }
+
+        .card-subtitle {
+            font-size: 11px;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            color: var(--burgundy);
+            opacity: 0.85;
+            margin-bottom: 10px;
+        }
+
+        .invitation-card h1 {
+            font-family: "Cormorant Garamond", serif;
+            font-size: clamp(34px, 10vw, 52px);
+            font-weight: 500;
+            font-style: italic;
+            color: var(--burgundy-dark);
+            line-height: 1;
+        }
+
+        .invitation-card h1 span {
+            display: block;
+            font-size: 22px;
+            margin: 10px 0;
+            color: var(--gold);
+            font-style: normal;
+        }
+
+        .card-date {
+            font-family: "Cormorant Garamond", serif;
+            font-size: 15px;
+            letter-spacing: 3px;
+            color: var(--burgundy);
+            margin-top: 14px;
+        }
+
+        /* === ОТКРЫТИЕ КОНВЕРТА === */
+
+        /* Клапан откидывается назад */
+        .envelope-wrapper.open .envelope-flap-design {
+            transform: rotateX(-180deg);
+        }
+
+        /* Печать исчезает */
+        .envelope-wrapper.open .envelope-seal {
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(0.85);
+        }
+
+        /* Открытка выходит вперёд и вверх */
+        .envelope-wrapper.open .invitation-card {
+            transform: translateY(-55px) scale(1);
+            opacity: 1;
+            transition-delay: .45s;
+        }
+
+        .tap-hint-envelope {
+            margin-top: 25px;
+            color: var(--ivory);
+            font-size: 12px;
+            letter-spacing: 3px;
+            opacity: 0.7;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%,100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        /* === ОСНОВНОЕ ПРИГЛАШЕНИЕ === */
+        .invitation {
+            position: fixed;
+            inset: 0;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 1.2s ease;
+        }
+
+        .invitation.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .pages-container {
+            position: relative;
+            width: min(440px, 100vw);
+            height: 100vh;
+            overflow: hidden;
+            background: linear-gradient(180deg, #2E1414 0%, #1A0F0F 100%);
+        }
+
+        .page {
+            position: absolute;
+            inset: 0;
+            padding: 50px 24px 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transform: translateX(100px);
+            pointer-events: none;
+            transition: opacity .75s ease, transform .75s cubic-bezier(.2,.8,.2,1);
+        }
+
+        .page.active {
+            opacity: 1;
+            transform: translateX(0);
+            pointer-events: auto;
+        }
+
+        .page-inner {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            width: 100%;
+            background: rgba(253,248,240,.95);
+            border-radius: 8px;
+            padding: 30px 20px;
+            box-shadow: 0 0 0 1px rgba(184,155,106,.3), 0 20px 50px rgba(0,0,0,.4);
+            min-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .tiny-title {
+            font-size: 10px;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            color: var(--burgundy);
+            opacity: 0.9;
+            margin-bottom: 12px;
+        }
+
+        .page h2, .page h3 {
+            font-family: "Cormorant Garamond", serif;
+            font-weight: 500;
+            font-style: italic;
+            color: var(--burgundy-dark);
+        }
+
+        .page h2 {
+            font-size: clamp(38px, 11vw, 56px);
+            line-height: 1;
+        }
+
+        .page h2 span {
+            display: block;
+            font-size: 26px;
+            color: var(--gold);
+            font-style: normal;
+            margin: 12px 0;
+        }
+
+        .page h3 {
+            font-size: clamp(24px, 6vw, 32px);
+            line-height: 1.4;
+            margin-bottom: 16px;
+        }
+
+        .main-text {
+            max-width: 280px;
+            margin: 0 auto 14px;
+            font-family: "Cormorant Garamond", serif;
+            font-size: 18px;
+            line-height: 1.7;
+            color: var(--text-muted);
+        }
+
+        .tap-hint {
+            margin-top: 24px;
+            font-size: 9px;
+            letter-spacing: 3px;
+            color: var(--burgundy);
+            opacity: 0.6;
+            text-transform: uppercase;
+        }
+
+        /* Дата */
+        .date-big {
+            font-family: "Cormorant Garamond", serif;
+            font-size: 80px;
+            line-height: 1;
+            color: var(--burgundy-dark);
+        }
+
+        .date-month {
+            font-size: 14px;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            color: var(--burgundy);
+            margin: 6px 0;
+        }
+
+        .date-year {
+            font-family: "Cormorant Garamond", serif;
+            font-size: 22px;
+            color: var(--gold);
+        }
+
+        .time-display {
+            font-family: "Cormorant Garamond", serif;
+            font-size: 28px;
+            color: var(--burgundy-dark);
+            margin-top: 16px;
+        }
+
+        /* МЕСТО */
+        .place-name {
+            font-family: "Cormorant Garamond", serif;
+            font-size: 22px;
+            color: var(--burgundy-dark);
+            margin-bottom: 10px;
+        }
+
+        .place-address {
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.8;
+            margin-bottom: 24px;
+        }
+
+        .map-box {
+            width: 100%;
+            padding: 24px 18px;
+            background: linear-gradient(135deg, rgba(123,45,46,.06), rgba(184,155,106,.06));
+            border: 1px solid rgba(184,155,106,.3);
+            border-radius: 6px;
+            margin-bottom: 10px;
+        }
+
+        .map-button {
+            display: inline-block;
+            padding: 14px 32px;
+            background: var(--burgundy-dark);
+            color: var(--ivory);
+            font-size: 12px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-decoration: none;
+            border-radius: 4px;
+            border: 1px solid var(--gold);
+            transition: all .3s ease;
+        }
+
+        .map-button:hover {
+            background: var(--burgundy);
+            transform: translateY(-2px);
+        }
+
+        /* Таймер */
+        .countdown {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 28px;
+            gap: 6px;
+        }
+
+        .count-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 60px;
+        }
+
+        .count-box span {
+            font-family: "Cormorant Garamond", serif;
+            font-size: 30px;
+            color: var(--burgundy-dark);
+        }
+
+        .count-box small {
+            font-size: 9px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--burgundy);
+            margin-top: 4px;
+        }
+
+        .count-sep {
+            font-size: 22px;
+            color: var(--gold);
+            padding-bottom: 10px;
+        }
+
+        .final-note {
+            margin-top: 24px;
+            font-family: "Cormorant Garamond", serif;
+            font-size: 18px;
+            color: var(--burgundy-dark);
+            font-style: italic;
+        }
+
+        /* НАВИГАЦИЯ */
+        .next-button, .prev-button {
+            position: absolute;
+            bottom: 32px;
+            width: 44px;
+            height: 44px;
+            border: 1px solid rgba(184,155,106,.4);
+            border-radius: 50%;
+            background: rgba(253,248,240,.9);
+            color: var(--burgundy-dark);
+            font-size: 18px;
+            cursor: pointer;
+            transition: all .3s ease;
+            z-index: 5;
+        }
+
+        .next-button { right: 20px; }
+        .prev-button { left: 20px; }
+
+        .next-button:hover, .prev-button:hover {
+            background: var(--gold);
+            transform: scale(1.1);
+            border-color: var(--gold);
+        }
+
+        .page-indicator {
+            position: fixed;
+            bottom: 18px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+            z-index: 50;
+        }
+
+        .indicator {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: rgba(184,155,106,.3);
+            transition: all .4s ease;
+        }
+
+        .indicator.active {
+            width: 22px;
+            border-radius: 10px;
+            background: var(--gold);
+        }
+
+        /* КНОПКА МУЗЫКИ */
+        .music-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: 1px solid rgba(253,248,240,.3);
+            background: rgba(46,20,20,.8);
+            color: var(--gold);
+            cursor: pointer;
+            font-size: 20px;
+        }
+
+        @media (max-width: 500px) {
+            .page-inner { padding: 24px 16px; }
+            .date-big { font-size: 65px; }
+            .decor-floral-side { width: 70px; }
+            .img-rings { width: 60px; }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ЗАГРУЗКА -->
+    <div class="loader" id="loader">
+        <img src="images/doves-pair.png" class="loader-dove" alt="Ак куштар">
+        <p style="margin-top: 20px; color: var(--gold); font-size: 13px; letter-spacing: 2px;">
+            Жүктөлүүдө...
+        </p>
+    </div>
+
+    <!-- ЭКРАН С КОНВЕРТОМ -->
+    <section class="envelope-screen" id="envelopeScreen">
+
+        <img src="images/dove-with-envelope.png"
+             class="dove-flying"
+             alt="Кушт кат алып учууда">
+        
+        <div class="envelope-wrapper" id="envelope">
+
+            <!-- САМА ОТКРЫТКА -->
+            <div class="invitation-card">
+                
+                <p class="card-subtitle">Тойго чакыруу</p>
+
+                <h1>
+                    Айтбек
+                    <span>&</span>
+                    Айтбу
+                </h1>
+
+                <img src="images/rings.png"
+                     class="img-rings"
+                     alt="Шакектер">
+<div class="divider">
+                    <div class="divider-line"></div>
+                    <div class="divider-dot"></div>
+                    <div class="divider-line"></div>
+                </div>
+                
+
+               <p class="card-date">
+                    23 • 10 • 2026 — Саат 16:00
+                </p>
+                
+            </div>
+
+
+            <!-- КОНВЕРТ -->
+            <div class="envelope-outer"></div>
+
+
+            <!-- КЛАПАН КОНВЕРТА -->
+            <div class="envelope-flap-design"></div>
+
+
+            <!-- ПЕЧАТЬ -->
+            <img src="images/envelope-seal.png"
+                 class="envelope-seal img-seal"
+                 alt="Мөөр">
+
+        </div>
+        
+        <p class="tap-hint-envelope">
+            Ачуу үчүн басыңыз 🕊️
+        </p>
+
+    </section>
+
+
+    <!-- ПРИГЛАШЕНИЕ -->
+    <main class="invitation" id="invitation">
+
+        <div class="bg-doves-pair"></div>
+
+        <img src="images/floral-ornament.png"
+             class="decor-floral-side decor-floral-left"
+             alt="Гүлдөр">
+
+        <img src="images/floral-ornament.png"
+             class="decor-floral-side decor-floral-right"
+             alt="Гүлдөр">
+        
+        <div class="pages-container" id="pagesContainer">
+
+            <!-- 1-БЕТ: БАШТАЛЫШ -->
+            <section class="page active">
+
+                <div class="page-inner">
+
+                    <p class="tiny-title">Биздин той</p>
+
+                    <img src="images/doves-pair.png"
+                         class="img-doves-top"
+                         alt="Эки ак куш">
+
+                    <h2>
+                        Айтбек
+                        <span>&</span>
+                        Айтбу
+                    </h2>
+
+                    <img src="images/rings.png"
+                         class="img-rings"
+                         alt="Шакектер">
+
+                    <div class="divider">
+                        <div class="divider-line"></div>
+                        <div class="divider-dot"></div>
+                        <div class="divider-line"></div>
+                    </div>
+
+                    <p class="main-text" style="font-style: italic;">
+                        Биз жашообуздун жаңы барагын ачабыз. Сиздер — эң кымбат конокторубуз. Жаныбызда болуңуз.
+                    </p>
+
+                    <p class="tap-hint">
+                        Улантуу →
+                    </p>
+
+                </div>
+
+                <button class="next-button">→</button>
+
+            </section>
+
+
+            <!-- 2-БЕТ: КАЙРЫЛУУ -->
+            <section class="page">
+
+                <div class="page-inner">
+
+                    <p class="tiny-title">
+                        Урматтуу коноктор
+                    </p>
+
+                    <h3>
+                        Туугандар, жакындар!
+                    </h3>
+
+                    <div class="divider">
+                        <div class="divider-line"></div>
+                        <div class="divider-dot"></div>
+                        <div class="divider-line"></div>
+                    </div>
+
+                    <p class="main-text">
+                        Чын жүрөктөн сиздерди биздин кыз узатуу аземине күбөө болууга чакырабыз.
+                    </p>
+
+                    <p class="main-text">
+                        Сиздин катышууңуз бул күндү дагы кооз кылат. Сиздерди чыдамсыздык менен күтөбүз!
+                    </p>
+
+                    <img src="images/rings.png"
+                         class="img-rings"
+                         alt="Шакектер"
+                         style="margin-top: 20px;">
+
+                </div>
+
+                <button class="prev-button">←</button>
+                <button class="next-button">→</button>
+
+            </section>
+
+
+            <!-- 3-БЕТ: КҮНҮ ЖАНА СААТЫ -->
+            <section class="page">
+
+                <div class="page-inner">
+
+                    <p class="tiny-title">
+                        Той күнү
+                    </p>
+
+                    <div class="date-big">
+                        23
+                    </div>
+
+                    <p class="date-month">
+                        Октябрь
+                    </p>
+
+                    <p class="date-year">
+                        2026
+                    </p>
+
+                    <div class="divider">
+                        <div class="divider-line"></div>
+                        <div class="divider-dot"></div>
+                        <div class="divider-line"></div>
+                    </div>
+
+                    <p class="time-display">
+                        Саат 16:00
+                    </p>
+
+                    <p style="margin-top: 8px; font-size: 12px; color: var(--text-muted);">
+                        Тойдун башталышы
+                    </p>
+
+                </div>
+
+                <button class="prev-button">←</button>
+                <button class="next-button">→</button>
+
+            </section>
+
+
+            <!-- 4-БЕТ: ӨТКӨРҮҮ ЖЕРИ -->
+            <section class="page">
+
+                <div class="page-inner">
+
+                    <p class="tiny-title">
+                        Той салтанаты
+                    </p>
+
+                    <h3 class="place-name">
+                        «Элина Grand»
+                      
+                    </h3>
+
+                    <p class="place-address">
+                       Ноокен району,<br>
+                        Жалал-Абад облусу
+                    </p>
+                    
+                    <div class="map-box">
+
+                        <a class="map-button" 
+                           href="https://www.google.com/maps/search/?api=1&query=41.045942,72.585513"
+                           target="_blank"
+                           rel="noopener noreferrer">
+                            КАРТАНЫ АЧУУ
+                        </a>
+
+                        <p style="margin-top: 12px; font-size: 10px; color: var(--text-muted);">
+                            41.045942, 72.585513
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <button class="prev-button">←</button>
+                <button class="next-button">→</button>
+
+            </section>
+
+
+            <!-- 5-БЕТ: САНАГЫЧ -->
+            <section class="page">
+
+                <div class="page-inner">
+
+                    <p class="tiny-title">
+                        Тойго чейин
+                    </p>
+
+                    <img src="images/doves-pair.png"
+                         class="img-doves-top"
+                         alt="Ак куштар">
+
+                    <h3>
+                        Биздин бакыт жакында!
+                    </h3>
+
+                    <div class="countdown">
+
+                        <div class="count-box">
+                            <span id="days">00</span>
+                            <small>күн</small>
+                        </div>
+
+                        <span class="count-sep">:</span>
+
+                        <div class="count-box">
+                            <span id="hours">00</span>
+                            <small>саат</small>
+                        </div>
+
+                        <span class="count-sep">:</span>
+
+                        <div class="count-box">
+                            <span id="minutes">00</span>
+                            <small>мүнөт</small>
+                        </div>
+
+                        <span class="count-sep">:</span>
+
+                        <div class="count-box">
+                            <span id="seconds">00</span>
+                            <small>секунд</small>
+                        </div>
+
+                    </div>
+
+                    <img src="images/rings.png"
+                         class="img-rings"
+                         alt="Шакектер"
+                         style="margin-top: 20px;">
+
+                    <p class="final-note">
+                        Сиздерди урматтоо менен той ээлери
+                    </p>
+
+                    <p class="final-note">
+                        Абдираим & Анаргул🕊️
+                    </p>
+
+                </div>
+
+                <button class="prev-button">←</button>
+
+            </section>
+
+        </div>
+
+
+        <div class="page-indicator" id="pageIndicator">
+
+            <span class="indicator active"></span>
+            <span class="indicator"></span>
+            <span class="indicator"></span>
+            <span class="indicator"></span>
+            <span class="indicator"></span>
+
+        </div>
+
+
+        <!-- КНОПКА ЗВУКА -->
+        <button class="music-button"
+                id="musicButton"
+                aria-label="Музыка">
+            🔊
+        </button>
+
+
+        <!-- МУЗЫКА -->
+        <audio id="weddingMusic" loop>
+            <source src="images/wedding-music.mp3" type="audio/mpeg">
+        </audio>
+
+    </main>
+
+
+    <script>
+
+        /* =========================================
+           ДАТА СВАДЬБЫ
+        ========================================= */
+
+        const weddingDate = new Date("2026-10-23T16:00:00");
+
+
+        /* =========================================
+           ЗАГРУЗКА
+        ========================================= */
+
+        window.addEventListener("load", () => {
+
+            setTimeout(() => {
+                document.getElementById("loader").classList.add("hidden");
+            }, 1200);
+
+        });
+
+
+        /* =========================================
+           КОНВЕРТ
+        ========================================= */
+
+        const envelopeWrapper = document.getElementById("envelope");
+        const envelopeScreen = document.getElementById("envelopeScreen");
+        const invitation = document.getElementById("invitation");
+
+        let isOpened = false;
+
+
+        /* =========================================
+           МУЗЫКА
+        ========================================= */
+
+        const musicBtn = document.getElementById("musicButton");
+        const music = document.getElementById("weddingMusic");
+
+        let playing = false;
+
+
+        function startMusic() {
+
+            if (!music) return;
+
+            music.volume = 0.5;
+
+            const playPromise = music.play();
+
+            if (playPromise !== undefined) {
+
+                playPromise
+                    .then(() => {
+
+                        playing = true;
+                        musicBtn.textContent = "🔊";
+
+                    })
+                    .catch(() => {
+
+                        /*
+                         Браузер мог запретить
+                         автоматический запуск.
+                         Музыка запустится после
+                         первого нажатия пользователя.
+                        */
+
+                        playing = false;
+                        musicBtn.textContent = "🔇";
+
+                    });
+
+            }
+
+        }
+
+
+        /* Пытаемся включить музыку сразу при входе */
+        window.addEventListener("load", () => {
+            startMusic();
+        });
+
+
+        /* =========================================
+           ОТКРЫТИЕ ПО НАЖАТИЮ
+        ========================================= */
+
+        function openCard() {
+
+            if (isOpened) return;
+
+            isOpened = true;
+
+            /* Если музыка не запустилась автоматически,
+               запуск произойдет после этого клика */
+            if (!playing) {
+                startMusic();
+            }
+
+            /* Открываем конверт */
+            envelopeWrapper.classList.add("open");
+
+
+            /*
+             Сначала открывается клапан,
+             затем выходит открытка.
+             После этого показываем сайт.
+            */
+
+            setTimeout(() => {
+
+                envelopeScreen.classList.add("hide");
+                invitation.classList.add("show");
+
+            }, 2400);
+
+        }
+
+
+        envelopeScreen.addEventListener("click", openCard);
+
+
+        /* =========================================
+           НАВИГАЦИЯ
+        ========================================= */
+
+        const pages = document.querySelectorAll(".page");
+        const indicators = document.querySelectorAll(".indicator");
+
+        let currentPage = 0;
+
+
+        function showPage(index) {
+
+            if (index < 0 || index >= pages.length) return;
+
+            pages.forEach((page, i) => {
+
+                page.classList.remove("active");
+
+                page.style.transform =
+                    i < index
+                        ? "translateX(-100px)"
+                        : "translateX(100px)";
+
+            });
+
+
+            pages[index].style.transform = "translateX(0)";
+
+            pages[index].classList.add("active");
+
+
+            indicators.forEach((ind, i) => {
+
+                ind.classList.toggle(
+                    "active",
+                    i === index
+                );
+
+            });
+
+
+            currentPage = index;
+
+        }
+
+
+        document.querySelectorAll(".next-button").forEach(button => {
+
+            button.addEventListener("click", (event) => {
+
+                event.stopPropagation();
+
+                showPage(currentPage + 1);
+
+            });
+
+        });
+
+
+        document.querySelectorAll(".prev-button").forEach(button => {
+
+            button.addEventListener("click", (event) => {
+
+                event.stopPropagation();
+
+                showPage(currentPage - 1);
+
+            });
+
+        });
+
+
+        /* =========================================
+           СВАЙП НА ТЕЛЕФОНЕ
+        ========================================= */
+
+        const container =
+            document.getElementById("pagesContainer");
+
+        let startX = 0;
+
+
+        container.addEventListener(
+            "touchstart",
+            e => {
+                startX = e.changedTouches[0].screenX;
+            },
+            { passive: true }
+        );
+
+
+        container.addEventListener(
+            "touchend",
+            e => {
+
+                const diff =
+                    startX - e.changedTouches[0].screenX;
+
+                if (Math.abs(diff) < 50) return;
+
+                showPage(
+                    diff > 0
+                        ? currentPage + 1
+                        : currentPage - 1
+                );
+
+            },
+            { passive: true }
+        );
+
+
+        /* =========================================
+           КЛАВИАТУРА
+        ========================================= */
+
+        document.addEventListener("keydown", e => {
+
+            if (e.key === "ArrowRight") {
+                showPage(currentPage + 1);
+            }
+
+            if (e.key === "ArrowLeft") {
+                showPage(currentPage - 1);
+            }
+
+        });
+
+
+        /* =========================================
+           ОБРАТНЫЙ ОТСЧЁТ
+        ========================================= */
+
+        function updateCountdown() {
+
+            const now = Date.now();
+            const target = weddingDate.getTime();
+
+            const diff = target - now;
+
+
+            if (diff <= 0) {
+
+                document.getElementById("days").textContent = "00";
+                document.getElementById("hours").textContent = "00";
+                document.getElementById("minutes").textContent = "00";
+                document.getElementById("seconds").textContent = "00";
+
+                return;
+
+            }
+
+
+            const days =
+                Math.floor(
+                    diff / (1000 * 60 * 60 * 24)
+                );
+
+
+            const hours =
+                Math.floor(
+                    (diff / (1000 * 60 * 60)) % 24
+                );
+
+
+            const mins =
+                Math.floor(
+                    (diff / (1000 * 60)) % 60
+                );
+
+
+            const secs =
+                Math.floor(
+                    (diff / 1000) % 60
+                );
+
+
+            document.getElementById("days").textContent =
+                String(days).padStart(2, "0");
+
+            document.getElementById("hours").textContent =
+                String(hours).padStart(2, "0");
+
+            document.getElementById("minutes").textContent =
+                String(mins).padStart(2, "0");
+
+            document.getElementById("seconds").textContent =
+                String(secs).padStart(2, "0");
+
+        }
+
+
+        /* Первый запуск */
+        updateCountdown();
+
+
+        /* Постоянное обновление */
+        setInterval(updateCountdown, 1000);
+
+
+        /*
+         Если пользователь вернулся
+         на вкладку сайта — таймер сразу
+         пересчитывается.
+        */
+
+        document.addEventListener(
+            "visibilitychange",
+            updateCountdown
+        );
+
+
+        /* =========================================
+           КНОПКА ЗВУКА
+        ========================================= */
+
+        musicBtn.addEventListener("click", (event) => {
+
+            event.stopPropagation();
+
+
+            if (playing) {
+
+                music.pause();
+
+                playing = false;
+
+                musicBtn.textContent = "🔇";
+
+            } else {
+
+                music.play()
+                    .then(() => {
+
+                        playing = true;
+
+                        musicBtn.textContent = "🔊";
+
+                    })
+                    .catch(() => {
+
+                        musicBtn.textContent = "🔇";
+
+                    });
+
+            }
+
+        });
+
+    </script>
+
+</body>
+</html>
